@@ -35,14 +35,14 @@ ok(index_for_which(sub { shift() eq 'this' }, \@violent_femme), 0);
 my $r = insert_after_string ('be', 'very', \@violent_femme);
 
 my $I = index_for_which(sub { length(shift()) == 8 }, \@violent_femme);
-my $r = _insert_after ($I,
+   $r = _insert_after ($I,
 		      'compound_insert',
 		      \@violent_femme
 		     );
 
 #warn Dumper($r);
 
-my $r = insert_after (sub { length(shift()) == 8 },
+   $r = insert_after (sub { length(shift()) == 8 },
 		       'second_innsert',
 		       \@violent_femme
 		      );

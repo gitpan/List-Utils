@@ -3,3 +3,4 @@ MANIFEST
 Makefile.PL
 Utils.pm
 t/all_tests.t
+META.yml                                 Module meta-data (added by MakeMaker)
