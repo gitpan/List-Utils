@@ -35,7 +35,7 @@ our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 our @EXPORT = qw(
 	
 );
-our $VERSION = '0.04';
+our $VERSION = '0.05';
 
 
 # Preloaded methods go here.
@@ -153,6 +153,13 @@ List::Utils - Additional list utilities
  }
 
  ok(index_for_which(sub { shift() eq 'hallowed' }, @violent_femme), 3);
+
+ for (@required_fields) {
+    my $search = $_;
+    $required_fields_i{$_} =
+      index_for_which ( sub { shift() eq $search }, $R );
+ }
+
 
  my $I = index_for_which(sub { length(shift()) == 8 }, \@violent_femme);
  my $r = _insert_after ($I,
