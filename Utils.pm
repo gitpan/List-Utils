@@ -3,6 +3,10 @@ package List::Utils;
 require 5.005_62;
 use strict;
 use warnings;
+use diagnostics;
+
+use Carp qw(confess);
+use Data::Dumper;
 
 require Exporter;
 
@@ -15,14 +19,23 @@ our @ISA = qw(Exporter);
 # This allows declaration	use List::Utils ':all';
 # If you do not need this, moving things directly into @EXPORT or @EXPORT_OK
 # will save memory.
-our %EXPORT_TAGS = ( 'all' => [ qw(all none notall true false) ] );
+our %EXPORT_TAGS = ( 'all' => [ qw(all none notall true false
+
+				   index_for_which
+
+				   _insert_after
+				   insert_after
+
+				   insert_after_string
+
+) ] );
 
 our @EXPORT_OK = ( @{ $EXPORT_TAGS{'all'} } );
 
 our @EXPORT = qw(
 	
 );
-our $VERSION = '0.01';
+our $VERSION = '0.04';
 
 
 # Preloaded methods go here.
@@ -46,6 +59,78 @@ sub true { scalar grep { $_ } @_ }
 # How many elements are false
 sub false { scalar grep { !$_ } @_ }
 
+sub index_for_which {
+
+    my $sub = shift or confess 'must supply sub';
+    my $i = 0;
+    my $array = shift;
+    for (@$array) {
+	return $i if $sub->($_);
+	++$i;
+    }
+
+    return undef;
+}
+
+sub _insert_after {
+
+    my ($i, $new_val, $a) = @_;
+
+    defined ($i) or die "could not use $i to insert_after";
+
+    my   @n =  @{$a}[0 .. $i];
+#    warn Dumper(\@n);
+    push @n,   $new_val;
+#    warn Dumper(\@n);
+    push @n,   @{$a}[$i+1 .. $#$a];
+
+
+    return \@n;
+
+}
+
+sub insert_after {
+
+    my ($sub, $string, $array) = @_;
+
+    _insert_after (
+		   (index_for_which $sub, $array),
+		   $string,
+		   $array
+		  );
+
+}
+
+sub insert_after_string {
+
+    my ($search, $new_val, $a) = @_;
+
+    my $i = index_for_which (
+			     sub { shift() eq $search },
+			     $a);
+
+    defined ($i) or die "could not find $search in @_";
+
+    return _insert_after($i, $new_val, $a);
+
+
+#    warn "i: $i";
+
+    my @n =  @{$a}[0 .. $i];
+
+#    warn "list so far: ", Dumper(\@n, $a);
+
+
+#    warn "pushing $new_val";
+
+    push @n, $new_val;
+
+#    warn "list after push: ", Dumper(\@n);
+
+    push @n, @{$a}[$i+1 .. $#$a];
+
+
+}
 
 1;
 __END__
@@ -67,6 +152,24 @@ List::Utils - Additional list utilities
     true(@data), false(@data);
  }
 
+ ok(index_for_which(sub { shift() eq 'hallowed' }, @violent_femme), 3);
+
+ my $I = index_for_which(sub { length(shift()) == 8 }, \@violent_femme);
+ my $r = _insert_after ($I,
+		      'compound_insert',
+		      \@violent_femme
+		     );
+ # easier
+ my $r = insert_after (sub { length(shift()) == 8 },
+		       'second_innsert',
+		       \@violent_femme
+		      );
+
+ # easiest
+ my $r = insert_after_string ('be', 'very', \@violent_femme);
+
+
+
 =head1 DESCRIPTION
 
 You know the things that Graham said could be implemented in Perl in
@@ -86,6 +189,10 @@ here they are.
 =item * C<false> returns how many elements are false
 
 =back
+
+=head1 TODO
+
+ C<insert_before> must be written... for obvious reasons.
 
 =head2 EXPORT
 
